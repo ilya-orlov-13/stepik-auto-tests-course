@@ -1,8 +1,21 @@
+import pytest
+
 from pages.product_page import ProductPage
 
 
-def test_guest_can_add_product_to_basket(browser):
-    link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=newYear2019"
+@pytest.mark.parametrize("link", [
+    pytest.param(
+        f"http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{offer}",
+        marks=pytest.mark.xfail(
+            reason="offer7 adds 'book' to the product name in the success message",
+            raises=AssertionError,
+            strict=True,
+        ),
+    ) if offer == 7 else
+    f"http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{offer}"
+    for offer in range(10)
+])
+def test_guest_can_add_product_to_basket(browser, link):
     page = ProductPage(browser, link)
     page.open()
     product_name = page.get_product_name()
